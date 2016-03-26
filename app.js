@@ -8,6 +8,42 @@ var bodyParser = require('body-parser');
 var routes = require('./routes/index');
 var users = require('./routes/users');
 
+var mongoose = require('mongoose');
+mongoose.connect('mongodb://nano:1111@localhost:27017/hairbook'); // 기본 설정에 따라 포트가 상이 할 수 있습니다.
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function callback () {
+  console.log("mongo db connection OK.");
+});
+
+var testSchema = mongoose.Schema({
+  name: String
+});
+
+testSchema.methods.speak = function () {
+  var greeting = this.name
+  ? "Meow name is " + this.name
+  : "I don't have a name"
+  console.log("speak() - " + greeting);
+}
+
+var TestModel = mongoose.model("TestModel", testSchema);
+
+var testIns = new TestModel({ name: "testIns"});
+
+testIns.save(function(err, testIns){
+  if(err) return console.error(err);
+  testIns.speak();
+});
+
+TestModel.find(function(err, models){
+  if(err) return console.error(err);
+  console.log("find() - "+models);
+});
+
+TestModel.find({name:/^testIns/});
+
+
 var app = express();
 
 // view engine setup
